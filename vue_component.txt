@@ -1,0 +1,12 @@
+Vue.component('todo-item', {
+  template: '<li></li>'
+})
+
+setiap bagian page = component
+header
+maincontent
+-item
+sidebar
+footer
+
+
