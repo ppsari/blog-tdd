@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Artikel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+  </head>
+  <body>
+    <div class="container row" id="app">
+      <aside class="col s4">
+        <a-title
+          v-for="article in articleList"
+          :id="article._id"
+          :title="article.title"
+          v-on:detail="getArticleDetail"
+          >
+        </a-title>
+      </aside>
+      <content class="col s8">
+        <a-descr :article="currArticle"></a-descr>
+      </content>
+    </div>
+    <script>
+
+      // var routes = {}
+      var routes = {}
+
+      const NotFound = { template: '<p>Page not found</p>' }
+      const Home = { template: '<p>home page</p>' }
+      const About = { template: '<p>about page</p>' }
+
+      var aTitle = {
+        template: ` <div @click="detail(id)"> {{ title }} </div>`,
+        props: ['title','id'],
+        data: function() { return {} },
+        methods: {
+          // updateValue: function (value) {
+          //   var result = currencyValidator.parse(value, this.value)
+          //   if (result.warning) {
+          //     this.$refs.input.value = result.value
+          //   }
+          //   this.$emit('input', result.value)
+          // },
+
+          detail: function(id) {
+            // console.log('------------------------------------1')
+            // console.log('ceritanya di klik;');
+            window.location.hash = `?artikel=${id}`;
+            this.$emit('detail',id);
+          }
+        }
+      }
+
+      var aDescr = {
+        template: `<div v-if="article.hasOwnProperty('descr')">
+        <h1>{{article.title}}</h1><br/>
+        {{ article.author.username}} <br/>
+        <p>{{ article.descr }}</p>
+        </div>`,
+        props: ['article'],
+      }
+      // let routes = [];
+      var app = new Vue({
+        el: '#app',
+        data: {
+          message: 'Hello Vue!',
+          articleList : [],
+          currArticle : {},
+          // currentRoute: window.location.pathname
+        },
+        // ,computed: {
+        //   ViewComponent () {
+        //     return routes[this.currentRoute] || NotFound
+        //   }
+        // },
+        // render (h) { return h(this.ViewComponent) },
+        created : function() {
+          this.getAllArticle();
+        },
+        methods: {
+          getAllArticle: function() {
+            let _self = this;
+            axios.get(`http://localhost:3000/api/articles/`)
+            .then(function (response) {
+              if (response.data.hasOwnProperty('error')) {
+                console.log(response.data.error);
+              } else {
+                _self.articleList = response.data;
+                // console.log(response.data);
+                // routes = response.data.map( route => '/artikel/${route.title}' );
+                // routes['/'] = 'Home'
+                // routes['/about'] = 'About'
+
+              }
+
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+          },
+          getArticleDetail: function (_id) {
+            // console.log('----------------------------2')
+            // console.log('masuk parent cuy')
+            let _self = this;
+            axios.get(`http://localhost:3000/api/articles/${_id}`)
+            .then(function (response) {
+              // console.log(response.data)
+              _self.currArticle = response.data
+
+              console.log('----------------------2');
+              console.log(_self.currArticle);
+              // return response.data;
+            })
+            .catch(function (error) {
+              // return {descr:error}
+              console.log(error);
+            });
+          }
+        }
+        // ,computed: {
+        //   selectedArticle : function () {
+        //     console.log('diparent')
+        //     let _self = this;
+        //     if (_self.currArticle !== '') {
+        //       console.log('ga kosong');
+        //       axios.get(`http://localhost:3000/api/articles/${_self.currArticle}`)
+        //       .then(function (response) {
+        //         console.log(_self.currArticle);
+        //         console.log('----------------------1');
+        //         console.log(response.data)
+        //         return response.data;
+        //       })
+        //       .catch(function (error) {
+        //         return {descr:error}
+        //       });
+        //     } else return {descr:''}
+        //   }
+        // }
+        ,components : {
+          'aTitle' : aTitle,
+          'a-descr': aDescr
+        }
+      })
+  </script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+  </body>
+</html>
